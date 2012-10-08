@@ -114,7 +114,7 @@ def parcoursLargeur(s0,DICO_ARBRE) :
 			l2=l.split(",")
 			#Tant que l2 n'est pas vide = tant que n a des fils
 			while l2 :
-				#On met les fils de n en tete d'OUVERT
+				#On met les fils de n en queue d'OUVERT
 				OUVERT.append(int(l2[0]))
 				#On supprime les fils de l2
 				l2.pop(0)
