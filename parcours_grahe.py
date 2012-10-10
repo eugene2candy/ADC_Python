@@ -51,30 +51,61 @@ nombre_noeuds=0
 while l :
 	#Si le noeud considere a des successeurs, ie si la ligne contient plus d'un element
 	if (len(l)>1) :
-		#Si le noeud est deja present dans le dictionnaire
+		#Si le noeud l[0] est deja present dans le dictionnaire
 		if(DICO_graphe.has_key(int(l[0])) == True) : 
-			#On met a jour la liste de ses successeurs
-			DICO_graphe[int(l[0])]=DICO_graphe[int(l[0])]+","+l[1]
-			if(DICO_graphe.has_key(l[1]) == False) :
-				nombre_noeuds+=1
-		#Sinon on insere le noeud dans le dictionnaire et on lui associe son successeur		
+			#Si le noeud n'a pas de successeur ie si sa valeur associee est -1
+			if DICO_graphe[int(l[0])] == str(-1) :
+				#Le successeur de ce noeud est l[1]
+				DICO_graphe[int(l[0])]=l[1]
+			#Si le noeud a un ou plusieurs successeurs ie si sa valeur associee n'est pas -1	
+			else :
+				#On separe les successeurs apres la ou les virgules
+				successeurs=DICO_graphe[int(l[0])].rsplit(",")
+				#On met un booleen a 0
+				boolean=0
+				#On recherche le successeur l[1] dans les successeurs du noeud l[0]
+				for i in successeurs :
+					#Si le successeur est deja present
+					if int(i)==DICO_graphe[int(l[0])] :
+						#On met le booleen a 1
+						boolean=1
+				#On met a jour la liste de ses successeurs si ce successeur n'est pas deja present
+				if (boolean==0 and DICO_graphe[int(l[0])] != str(-1)) :
+					DICO_graphe[int(l[0])]=DICO_graphe[int(l[0])]+","+l[1]
+				
+					
+		#Si le noeud l[0] n'est pas present dans le dictionnaire 
 		else :
+			#On insere ce noeud dans le dictionnaire et on lui associe son successeur l[1]		
 			DICO_graphe[int(l[0])]=l[1]
+			#On incremente le nombre total de noeud
 			nombre_noeuds+=1
-			if(DICO_graphe.has_key(l[1]) == False) :
-				nombre_noeuds+=1
+		#Si le successeur l[1] n'est pas present dans le dictionnaire en tant que noeud
+		if(DICO_graphe.has_key(int(l[1])) == False and DICO_graphe.has_key(l[1])==False) :
+			#On lui associe temporairement la valeur -1
+			DICO_graphe[int(l[1])]=str(-1)
+			#On incremente le nombre total de noeuds
+			nombre_noeuds+=1
+
 	#Si le noeud considere n'a pas de successeurs
 	else :
 		if(DICO_graphe.has_key(int(l[0])) == False) :
-			#On lui associe un espace dans le dictionnaire
-			DICO_graphe[int(l[0])]=" "
+			#On lui associe la valeur -1 dans le dictionnaire
+			DICO_graphe[int(l[0])]=str(-1)
+			#On incremente le nombre total de noeuds
 			nombre_noeuds+=1
+
 	#On lit la ligne suivante du fichier
 	l=fic_graphe.readline()
 	#On separe la ligne selon les espaces
 	l=l.split()
-	print DICO_graphe
-	print nombre_noeuds
+	
+#On supprime les noeuds qui n'ont pas de successeurs dans le dictionnaire
+for i in DICO_graphe.keys() :
+	if DICO_graphe[i]==str(-1) :
+		DICO_graphe.pop(i)
+
+
 #-----------------------Fonction de parcours en profondeur du graphe----------------------------
 def parcoursProfondeur(DICO_graphe,DICO_visite) :
 	#On initialise la variable nb_composantes a 0
@@ -84,8 +115,11 @@ def parcoursProfondeur(DICO_graphe,DICO_visite) :
 	for i in range(nombre_noeuds) :
 		#Si le noeud i n'a pas ete visite
 		if(DICO_visite.has_key(i) == False) :
-			#On incremente le nombre de composantes
-			nb_composantes+=1
+			if(DICO_visite.has_key(DICO_graphe[i]) == False) :
+				#On incremente le nombre de composantes
+				nb_composantes+=1
+				print DICO_visite
+				print DICO_graphe[i]
 			#i est le sommet initial
 			s0=i
 			#Etape 1 : On place le sommet initial s0 dans OUVERT
@@ -122,7 +156,7 @@ def parcoursProfondeur(DICO_graphe,DICO_visite) :
 				#On met n dans FERME
 				FERME.append(n)
 				#On affiche n a l'ecran
-				print n 
+				#print n 
 	return nb_composantes
 				
 
@@ -173,7 +207,7 @@ def parcoursLargeur(DICO_graphe,DICO_visite) :
 				#On met n dans FERME
 				FERME.append(n)
 				#On affiche n a l'ecran
-				print n 
+				#print n 
 	return nb_composantes
 				
 
