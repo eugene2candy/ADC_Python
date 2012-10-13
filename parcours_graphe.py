@@ -25,6 +25,11 @@ try:
 except IOError, e:      		
 	print "Fichier inconnu: ", fichier_resultat
 
+#On demande a l'utilisateur quel parcours d'arbre ils souhaite executer
+choix=raw_input("Parcours en largeur (1) ou parcours en profondeur (2) ?")
+while (choix!=str(1) and choix!=str(2)) :
+	choix=raw_input("Parcours en largeur (1) ou parcours en profondeur (2) ?")
+
 #On definit la liste OUVERT : liste d'attente contenant les sommets en attente
 OUVERT = list()
 
@@ -52,27 +57,44 @@ while l :
 	#Si le noeud considere a des successeurs, ie si la ligne contient plus d'un element
 	if (len(l)>1) :
 		#Si le noeud l[0] est deja present dans le dictionnaire
-		if(DICO_graphe.has_key(int(l[0])) == True) : 
-			#Si le noeud n'a pas de successeur ie si sa valeur associee est -1
-			if DICO_graphe[int(l[0])] == str(-1) :
-				#Le successeur de ce noeud est l[1]
-				DICO_graphe[int(l[0])]=l[1]
-			#Si le noeud a un ou plusieurs successeurs ie si sa valeur associee n'est pas -1	
-			else :
+		if(DICO_graphe.has_key(int(l[0])) == True or DICO_graphe.has_key(l[0]) == True) : 
+			#On separe les successeurs apres la ou les virgules
+			successeurs=DICO_graphe[int(l[0])].rsplit(",")
+			#On met un booleen a 0
+			boolean=0
+			#On recherche le successeur l[1] dans les successeurs du noeud l[0]
+			for i in successeurs :
+				#Si le successeur est deja present
+				if int(i)==DICO_graphe[int(l[0])] :
+					#On met le booleen a 1
+					boolean=1
+			#On met a jour la liste de ses successeurs si ce successeur n'est pas deja present
+			if (boolean==0) :
+				DICO_graphe[int(l[0])]=DICO_graphe[int(l[0])]+","+l[1]
+
+			#Si le successeur l[1] est present dans le dictionnaire
+			if(DICO_graphe.has_key(int(l[1])) == True or DICO_graphe.has_key(l[1])==True) :
 				#On separe les successeurs apres la ou les virgules
-				successeurs=DICO_graphe[int(l[0])].rsplit(",")
+				successeurs=DICO_graphe[int(l[1])].rsplit(",")
 				#On met un booleen a 0
 				boolean=0
 				#On recherche le successeur l[1] dans les successeurs du noeud l[0]
 				for i in successeurs :
 					#Si le successeur est deja present
-					if int(i)==DICO_graphe[int(l[0])] :
+					if int(i)==DICO_graphe[int(l[1])] :
 						#On met le booleen a 1
 						boolean=1
 				#On met a jour la liste de ses successeurs si ce successeur n'est pas deja present
-				if (boolean==0 and DICO_graphe[int(l[0])] != str(-1)) :
-					DICO_graphe[int(l[0])]=DICO_graphe[int(l[0])]+","+l[1]
-				
+				if (boolean==0) :
+					DICO_graphe[int(l[1])]=DICO_graphe[int(l[1])]+","+l[0]
+
+			#Si le successeur l[1] n'est pas present dans le dictionnaire
+			else :
+				if(DICO_graphe.has_key(int(l[1])) == False and DICO_graphe.has_key(l[1])==False) :
+					#On incremente le nombre total de noeuds
+					nombre_noeuds+=1
+					#On insere le noeud l[1] et on lui associe l[0] comme successeur
+					DICO_graphe[int(l[1])]=l[0]
 					
 		#Si le noeud l[0] n'est pas present dans le dictionnaire 
 		else :
@@ -80,13 +102,31 @@ while l :
 			DICO_graphe[int(l[0])]=l[1]
 			#On incremente le nombre total de noeud
 			nombre_noeuds+=1
-		#Si le successeur l[1] n'est pas present dans le dictionnaire en tant que noeud
-		if(DICO_graphe.has_key(int(l[1])) == False and DICO_graphe.has_key(l[1])==False) :
-			#On lui associe temporairement la valeur -1
-			DICO_graphe[int(l[1])]=str(-1)
-			#On incremente le nombre total de noeuds
-			nombre_noeuds+=1
 
+			#Si le successeur l[1] est present dans le dictionnaire
+			if(DICO_graphe.has_key(int(l[1])) == True or DICO_graphe.has_key(l[1])==True) :
+				#On separe les successeurs apres la ou les virgules
+				successeurs=DICO_graphe[int(l[1])].rsplit(",")
+				#On met un booleen a 0
+				boolean=0
+				#On recherche le successeur l[1] dans les successeurs du noeud l[0]
+				for i in successeurs :
+					#Si le successeur est deja present
+					if int(i)==DICO_graphe[int(l[1])] :
+						#On met le booleen a 1
+						boolean=1
+				#On met a jour la liste de ses successeurs si ce successeur n'est pas deja present
+				if (boolean==0) :
+					DICO_graphe[int(l[1])]=DICO_graphe[int(l[1])]+","+l[0]
+
+			#Si le successeur l[1] n'est pas present dans le dictionnaire
+			else :
+				if(DICO_graphe.has_key(int(l[1])) == False and DICO_graphe.has_key(l[1])==False) :
+					#On incremente le nombre total de noeuds
+					nombre_noeuds+=1
+					#On insere le noeud l[1] et on lui associe l[0] comme successeur
+					DICO_graphe[int(l[1])]=l[0]
+		
 	#Si le noeud considere n'a pas de successeurs
 	else :
 		if(DICO_graphe.has_key(int(l[0])) == False) :
@@ -100,6 +140,8 @@ while l :
 	#On separe la ligne selon les espaces
 	l=l.split()
 	
+print DICO_graphe
+
 #On supprime les noeuds qui n'ont pas de successeurs dans le dictionnaire
 for i in DICO_graphe.keys() :
 	if DICO_graphe[i]==str(-1) :
@@ -118,8 +160,6 @@ def parcoursProfondeur(DICO_graphe,DICO_visite) :
 			if(DICO_visite.has_key(DICO_graphe[i]) == False) :
 				#On incremente le nombre de composantes
 				nb_composantes+=1
-				print DICO_visite
-				print DICO_graphe[i]
 			#i est le sommet initial
 			s0=i
 			#Etape 1 : On place le sommet initial s0 dans OUVERT
@@ -212,10 +252,13 @@ def parcoursLargeur(DICO_graphe,DICO_visite) :
 				
 
 #On execute les fonctions
-nb_composantes=parcoursProfondeur(DICO_graphe,DICO_visite)
-print "Le graphe possede "+str(nombre_noeuds)+" noeuds et "+str(nb_composantes)+" composantes."
-nb_composantes=parcoursLargeur(DICO_graphe,DICO_visite)
-print "Le graphe possede "+str(nombre_noeuds)+" noeuds et "+str(nb_composantes)+" composantes."
+if choix==str(2):
+	nb_composantes=parcoursProfondeur(DICO_graphe,DICO_visite)
+	print "Le graphe possede "+str(nombre_noeuds)+" noeuds et "+str(nb_composantes)+" composantes."
+else :
+	if choix==str(1) :
+		nb_composantes=parcoursLargeur(DICO_graphe,DICO_visite)
+		print "Le graphe possede "+str(nombre_noeuds)+" noeuds et "+str(nb_composantes)+" composantes."
 
 
 #On ferme les fichiers
